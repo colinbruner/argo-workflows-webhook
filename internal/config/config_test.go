@@ -46,13 +46,14 @@ func TestConfig_Validate(t *testing.T) {
 	}
 }
 
-func TestConfigTLS(t *testing.T) {
-	config := Config{
-		CertFile: "server.crt",
-		KeyFile:  "server.key",
+func TestSetupTLS(t *testing.T) {
+	// Relative file reference
+	cfg := Config{
+		CertFile: "../../testdata/server.crt",
+		KeyFile:  "../../testdata/server.key",
 	}
 
-	tlsConfig := configTLS(config)
+	tlsConfig := cfg.SetupTLS()
 	if tlsConfig == nil {
 		t.Fatal("Expected non-nil tls.Config")
 	}

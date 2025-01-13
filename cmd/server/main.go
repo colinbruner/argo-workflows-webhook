@@ -1,20 +1,45 @@
-/*
-package server
+package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
+	"os"
+
+	"github.com/colinbruner/argo-workflows-webhook/internal/config"
+	"k8s.io/klog/v2"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World!")
-}
+var (
+	certFile string
+	keyFile  string
+	port     int
+)
 
 func main() {
-	http.HandleFunc("/", handler)
-	err := http.ListenAndServeTLS(":8443", "server.crt", "server.key", nil)
+	flag.StringVar(&certFile, "tls-cert-file", os.Getenv("TLS_CERT_FILE"), "TLS Certificate File")
+	flag.StringVar(&keyFile, "tls-key-file", os.Getenv("TLS_KEY_FILE"), "TLS Private Key File")
+	flag.IntVar(&port, "port", 8443, "HTTP Server Address") // TODO: envVar with default fallback
+	flag.Parse()
+
+	cfg := config.Config{
+		CertFile: certFile,
+		KeyFile:  keyFile,
+	}
+	err := cfg.Validate()
 	if err != nil {
-		fmt.Println("Failed to start server:", err)
+		panic(err)
+	}
+
+	configureHandlers()
+
+	server := &http.Server{
+		Addr:      fmt.Sprintf(":%d", port),
+		TLSConfig: cfg.SetupTLS(),
+	}
+	klog.Info("Starting server on", server.Addr)
+	err = server.ListenAndServeTLS("", "")
+	if err != nil {
+		panic(err)
 	}
 }
-*/

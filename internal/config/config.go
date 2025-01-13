@@ -23,11 +23,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func (c Config) Print() {
-	fmt.Println(c)
-}
-
-func configTLS(c Config) *tls.Config {
+func (c Config) SetupTLS() *tls.Config {
 	sCert, err := tls.LoadX509KeyPair(c.CertFile, c.KeyFile)
 	if err != nil {
 		klog.Fatal(err)
