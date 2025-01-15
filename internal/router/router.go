@@ -1,4 +1,4 @@
-package main
+package router
 
 import (
 	"encoding/json"
@@ -29,6 +29,7 @@ func newAdmitHandler(f admit) admitHandler {
 }
 
 func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
+	klog.Info("Reading body in request")
 	var body []byte
 	if r.Body != nil {
 		if data, err := io.ReadAll(r.Body); err == nil {
@@ -36,6 +37,7 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 		}
 	}
 
+	klog.Info("Reading headers in request")
 	// verify the content type is accurate
 	contentType := r.Header.Get("Content-Type")
 	if contentType != "application/json" {
@@ -43,7 +45,7 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 		return
 	}
 
-	klog.V(2).Info(fmt.Sprintf("handling request: %s", body))
+	klog.V(2).Info(fmt.Sprintf("handling request body: %s", body))
 
 	deserializer := scheme.Codecs.UniversalDeserializer()
 	obj, _, err := deserializer.Decode(body, nil, nil)
@@ -80,20 +82,15 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 	}
 }
 
-func serveVersion(w http.ResponseWriter, r *http.Request) {
+func ServeVersion(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "v0.0.1") // TODO: read version from build
 }
 
-func serveIndex(w http.ResponseWriter, r *http.Request) {
+func ServeIndex(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "OK") // TODO: usage message
 }
 
-func serveMutate(w http.ResponseWriter, r *http.Request) {
+func ServeMutate(w http.ResponseWriter, r *http.Request) {
+	klog.Info("Request received for /mutate")
 	serve(w, r, newAdmitHandler(argo.Mutate))
-}
-
-func configureHandlers() {
-	http.HandleFunc("/", serveIndex)
-	http.HandleFunc("/version", serveVersion)
-	http.HandleFunc("/mutate", serveMutate)
 }

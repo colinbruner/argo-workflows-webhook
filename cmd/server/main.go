@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/colinbruner/argo-workflows-webhook/internal/config"
+	"github.com/colinbruner/argo-workflows-webhook/internal/router"
 	"k8s.io/klog/v2"
 )
 
@@ -15,6 +16,12 @@ var (
 	keyFile  string
 	port     int
 )
+
+func configureHandlers() {
+	http.HandleFunc("/", router.ServeIndex)
+	http.HandleFunc("/version", router.ServeVersion)
+	http.HandleFunc("/mutate", router.ServeMutate)
+}
 
 func main() {
 	flag.StringVar(&certFile, "tls-cert-file", os.Getenv("TLS_CERT_FILE"), "TLS Certificate File")
@@ -26,10 +33,12 @@ func main() {
 		CertFile: certFile,
 		KeyFile:  keyFile,
 	}
+	klog.Info("Loading configuration")
 	err := cfg.Validate()
 	if err != nil {
 		panic(err)
 	}
+	klog.Info("Configuration validated")
 
 	configureHandlers()
 

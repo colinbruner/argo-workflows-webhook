@@ -1,4 +1,4 @@
-package main
+package router
 
 import (
 	"net/http"
@@ -42,7 +42,7 @@ func TestServeIndex(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(serveIndex)
+	handler := http.HandlerFunc(ServeIndex)
 
 	handler.ServeHTTP(rr, req)
 
@@ -63,7 +63,7 @@ func TestServeVersion(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(serveVersion)
+	handler := http.HandlerFunc(ServeVersion)
 
 	handler.ServeHTTP(rr, req)
 
