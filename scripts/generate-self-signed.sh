@@ -42,14 +42,13 @@ if [[ ! -f $SECRETS_DIR/server.crt ]]; then
     -CAcreateserial -out $SECRETS_DIR/server.crt -days 10000 \
     -extensions v3_ext -extfile $SCRIPT_DIR/csr.conf -sha256
 
+  CA_CERT_BASE64=$(cat $SECRETS_DIR/ca.crt | base64)
+  #yq -i ".webhooks[0].clientConfig.caBundle = $CA_CERT_BASE64" deploy/resources/mutatingwebhook.yaml
+
   TLS_CRT_BASE64=$(cat $SECRETS_DIR/server.crt | base64)
   TLS_KEY_BASE64=$(cat $SECRETS_DIR/server.key | base64)
 
-  CA_CERT_BASE64=$(cat $SECRETS_DIR/ca.crt | base64)
-
   # Regenerate secret-tls.yaml
-  rm -f $DEPLOY_DIR/resources/secret-tls.yaml
-
   cat <<EOF > $DEPLOY_DIR/resources/secret-tls.yaml
 apiVersion: v1
 kind: Secret
@@ -64,6 +63,9 @@ data:
 EOF
 
 fi
+
+echo "[INFO]: Add Base64 caCertificate to deploy/resources/mutatingwebhook.yaml"
+echo $CA_CERT_BASE64
 
 echo "[INFO]: Validating Server Certificate with CA"
 openssl verify -verbose -CAfile $SECRETS_DIR/ca.crt $SECRETS_DIR/server.crt
