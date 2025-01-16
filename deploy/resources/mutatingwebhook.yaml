@@ -6,9 +6,6 @@ metadata:
     app: argo-webhook
 webhooks:
 - name:  argo-webhook.argo.svc.cluster.local
-  objectSelector:
-    matchLabels:    
-      hello: "true"
   rules:
   - apiGroups:   ["argoproj.io"]
     apiVersions: ["v1alpha1"]
