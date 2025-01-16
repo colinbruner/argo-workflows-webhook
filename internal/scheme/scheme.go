@@ -3,11 +3,9 @@ package scheme
 // https://github.com/kubernetes/kubernetes/blob/master/test/images/agnhost/webhook/scheme.go
 
 import (
+	argoalphav1 "github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 	admissionv1 "k8s.io/api/admission/v1"
-	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
-	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -20,11 +18,9 @@ func init() {
 }
 
 func addToScheme(scheme *runtime.Scheme) {
-	utilruntime.Must(corev1.AddToScheme(scheme))
-	utilruntime.Must(admissionv1beta1.AddToScheme(scheme))
-	utilruntime.Must(admissionregistrationv1beta1.AddToScheme(scheme))
 	utilruntime.Must(admissionv1.AddToScheme(scheme))
 	utilruntime.Must(admissionregistrationv1.AddToScheme(scheme))
+	utilruntime.Must(argoalphav1.AddToScheme(scheme))
 }
 
 var Codecs = serializer.NewCodecFactory(scheme)

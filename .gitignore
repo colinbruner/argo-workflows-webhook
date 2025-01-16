@@ -1,4 +1,7 @@
 
 coverage*
-server.crt
-server.key
+
+testdata/server.*
+testdata/ca.*
+
+**secret-tls.yaml**
