@@ -1,4 +1,4 @@
-package argo
+package mutate
 
 import (
 	"encoding/json"
@@ -28,32 +28,35 @@ func Mutate(ar v1.AdmissionReview) *v1.AdmissionResponse {
 		klog.Error("Error unmarshalling request", err)
 	}
 
-	reviewResponse := v1.AdmissionResponse{}
-	reviewResponse.Allowed = true
-
 	switch ar.Request.Kind.Kind {
 	case "CronWorkflow":
 		klog.Info("Handling cronworkflows resource")
-		mutateCronWorkflows(&reviewResponse)
+		return mutateCronWorkflows()
 	case "Workflow":
 		//TODO
 		klog.Info("Handling workflows resource")
+		return nil
 	case "WorkflowTemplate":
 		//TODO
 		klog.Info("Handling workflowtemplate resource")
+		return nil
 	default:
 		// TODO: klog error?
 		klog.Error("Unsupported resource", http.StatusBadRequest)
+		return nil
 	}
 
-	return &reviewResponse
 }
 
 // func mutateCronWorkflows(ar v1.AdmissionReview) *v1.AdmissionResponse {
-func mutateCronWorkflows(rr *v1.AdmissionResponse) {
+func mutateCronWorkflows() *v1.AdmissionResponse {
 	klog.Info("Mutating cronworkflows")
 
-	pt := v1.PatchTypeJSONPatch
-	rr.PatchType = &pt
-	rr.Patch = []byte(customResourcePatch1)
+	patchType := v1.PatchTypeJSONPatch
+
+	return &v1.AdmissionResponse{
+		Allowed:   true,
+		PatchType: &patchType,
+		Patch:     []byte(customResourcePatch1),
+	}
 }

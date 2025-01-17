@@ -1,4 +1,4 @@
-package argo
+package mutate
 
 import (
 	"encoding/json"
@@ -75,7 +75,7 @@ func TestMutateUnsupportedResource(t *testing.T) {
 	}
 
 	response := Mutate(ar)
-	if !response.Allowed {
-		t.Errorf("Expected response to be not allowed for unsupported resource")
+	if response != nil {
+		t.Errorf("Expected response to nil for unsupported resource")
 	}
 }

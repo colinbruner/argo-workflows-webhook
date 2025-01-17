@@ -6,14 +6,13 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/colinbruner/argo-workflows-webhook/internal/argo"
+	"github.com/colinbruner/argo-workflows-webhook/internal/mutate"
 	"github.com/colinbruner/argo-workflows-webhook/internal/scheme"
 	v1 "k8s.io/api/admission/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
 )
 
-// admit is a generic function signature for an admission webhook
+// admit is a generic function signature for an (validate or mutate) webhook
 type admit func(v1.AdmissionReview) *v1.AdmissionResponse
 
 // admitHandler is a handler, for both validators and mutators, that CAN support multiple admission review versions
@@ -48,28 +47,28 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 	klog.V(2).Info(fmt.Sprintf("handling request body: %s", body))
 
 	deserializer := scheme.Codecs.UniversalDeserializer()
-	obj, _, err := deserializer.Decode(body, nil, nil)
+	obj, gvk, err := deserializer.Decode(body, nil, nil)
 	if err != nil {
 		msg := fmt.Sprintf("Request could not be decoded: %v", err)
 		klog.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-
-	var responseObj runtime.Object
 	requestedAdmissionReview, ok := obj.(*v1.AdmissionReview)
 	if !ok {
 		klog.Errorf("Expected v1.AdmissionReview but got: %T", obj)
 		return
 	}
 	responseAdmissionReview := &v1.AdmissionReview{}
-
+	responseAdmissionReview.SetGroupVersionKind(*gvk)
 	responseAdmissionReview.Response = admit.v1(*requestedAdmissionReview)
 	responseAdmissionReview.Response.UID = requestedAdmissionReview.Request.UID
 
-	responseObj = responseAdmissionReview
+	klog.Info("Saving to responseObject")
+	responseObj := responseAdmissionReview
 
 	klog.V(2).Info(fmt.Sprintf("sending response: %v", responseObj))
+	klog.Info(fmt.Sprintf("sending response: %v", responseObj))
 	respBytes, err := json.Marshal(responseObj)
 	if err != nil {
 		klog.Error(err)
@@ -92,5 +91,5 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 
 func ServeMutate(w http.ResponseWriter, r *http.Request) {
 	klog.Info("Request received for /mutate")
-	serve(w, r, newAdmitHandler(argo.Mutate))
+	serve(w, r, newAdmitHandler(mutate.Mutate))
 }
