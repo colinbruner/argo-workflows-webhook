@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"testing"
@@ -7,12 +7,12 @@ import (
 func TestConfig_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		config  Config
+		config  config
 		wantErr bool
 	}{
 		{
 			name: "valid config",
-			config: Config{
+			config: config{
 				CertFile: "server.crt",
 				KeyFile:  "server.key",
 			},
@@ -20,7 +20,7 @@ func TestConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "missing cert file",
-			config: Config{
+			config: config{
 				CertFile: "",
 				KeyFile:  "server.key",
 			},
@@ -28,7 +28,7 @@ func TestConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "missing key file",
-			config: Config{
+			config: config{
 				CertFile: "server.crt",
 				KeyFile:  "",
 			},
@@ -48,7 +48,7 @@ func TestConfig_Validate(t *testing.T) {
 
 func TestSetupTLS(t *testing.T) {
 	// Relative file reference
-	cfg := Config{
+	cfg := config{
 		CertFile: "../../testdata/server.crt",
 		KeyFile:  "../../testdata/server.key",
 	}

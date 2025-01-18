@@ -2,6 +2,10 @@ REGISTRY := "docker.io/despitehowever"
 CONTAINER := argo-workflows-webhook
 CONTAINER_TAG := latest
 
+.PHONY: run
+run:
+	go run ./cmd/server -tls-cert-file testdata/server.crt -tls-key-file testdata/server.key
+
 .PHONY: logs
 logs:
 	kubectl logs -f $(shell kubectl get pods -l 'app==argo-webhook' -o yaml | yq ".items[0].metadata.name")
@@ -20,9 +24,9 @@ build:
 
 .PHONY: html
 html: test
-	go tool cover -html=coverage.out -o coverage.html && open coverage.html
+	go tool cover -html=coverage.txt -o coverage.html && open coverage.html
 
 .PHONY: test
 test:
-	#go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic ./...
-	go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic $$(go list ./... | grep -v /cmd/)
+	go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic ./...
+	#go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic $$(go list ./... | grep -v /cmd/)

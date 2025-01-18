@@ -45,7 +45,6 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 	}
 
 	klog.V(2).Info(fmt.Sprintf("handling request body: %s", body))
-
 	deserializer := scheme.Codecs.UniversalDeserializer()
 	obj, gvk, err := deserializer.Decode(body, nil, nil)
 	if err != nil {
@@ -56,19 +55,23 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 	}
 	requestedAdmissionReview, ok := obj.(*v1.AdmissionReview)
 	if !ok {
-		klog.Errorf("Expected v1.AdmissionReview but got: %T", obj)
+		msg := fmt.Sprintf("Expected v1.AdmissionReview but got: %T", obj)
+		klog.Info(msg)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
+
 	responseAdmissionReview := &v1.AdmissionReview{}
 	responseAdmissionReview.SetGroupVersionKind(*gvk)
 	responseAdmissionReview.Response = admit.v1(*requestedAdmissionReview)
+	fmt.Println("HERE2")
 	responseAdmissionReview.Response.UID = requestedAdmissionReview.Request.UID
 
-	klog.Info("Saving to responseObject")
+	fmt.Println("HERE")
 	responseObj := responseAdmissionReview
+	fmt.Println("HERE1")
 
 	klog.V(2).Info(fmt.Sprintf("sending response: %v", responseObj))
-	klog.Info(fmt.Sprintf("sending response: %v", responseObj))
 	respBytes, err := json.Marshal(responseObj)
 	if err != nil {
 		klog.Error(err)
@@ -86,10 +89,17 @@ func ServeVersion(w http.ResponseWriter, r *http.Request) {
 }
 
 func ServeIndex(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "OK") // TODO: usage message
+	fmt.Fprintf(w, "OK")
 }
 
 func ServeMutate(w http.ResponseWriter, r *http.Request) {
 	klog.Info("Request received for /mutate")
 	serve(w, r, newAdmitHandler(mutate.Mutate))
 }
+
+/*
+func ServeValidate(w http.ResponseWriter, r *http.Request) {
+	klog.Info("Request received for /validate")
+	serve(w, r, newAdmitHandler(validate.Validate))
+}
+*/

@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"crypto/tls"
@@ -7,12 +7,12 @@ import (
 	"k8s.io/klog/v2"
 )
 
-type Config struct {
+type config struct {
 	CertFile string `yaml:"cert_file"`
 	KeyFile  string `yaml:"key_file"`
 }
 
-func (c *Config) Validate() error {
+func (c *config) Validate() error {
 	if c.CertFile == "" {
 		return fmt.Errorf("must specify config key tls: cert_file")
 	}
@@ -23,7 +23,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func (c Config) SetupTLS() *tls.Config {
+func (c config) SetupTLS() *tls.Config {
 	sCert, err := tls.LoadX509KeyPair(c.CertFile, c.KeyFile)
 	if err != nil {
 		klog.Fatal(err)

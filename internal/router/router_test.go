@@ -1,11 +1,14 @@
 package router
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	v1 "k8s.io/api/admission/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type mockAdmitHandler struct{}
@@ -17,14 +20,29 @@ func (m *mockAdmitHandler) v1(ar v1.AdmissionReview) *v1.AdmissionResponse {
 }
 
 func TestServe(t *testing.T) {
-	req, err := http.NewRequest("GET", "/", nil)
+	cr := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"kind":       "AdmissionReview",
+			"apiVersion": "admission.k8s.io/v1",
+			"request": map[string]interface{}{
+				"uid": "123",
+			},
+		},
+	}
+	data, err := json.Marshal(cr)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body := bytes.NewBuffer(data)
+	req, err := http.NewRequest("POST", "/mutate", body)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		r.Header.Set("Content-Type", "application/json")
 		serve(w, r, newAdmitHandler((&mockAdmitHandler{}).v1))
 	})
 

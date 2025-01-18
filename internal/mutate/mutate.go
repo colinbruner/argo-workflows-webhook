@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	// NOTE: Could dynamically look up aspects of this from ConfigMap, such as value?
 	customResourcePatch1 string = `[
          { "op": "add", "path": "/spec/startingDeadlineSeconds", "value": 300 }
      ]`
@@ -48,7 +49,6 @@ func Mutate(ar v1.AdmissionReview) *v1.AdmissionResponse {
 
 }
 
-// func mutateCronWorkflows(ar v1.AdmissionReview) *v1.AdmissionResponse {
 func mutateCronWorkflows() *v1.AdmissionResponse {
 	klog.Info("Mutating cronworkflows")
 

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/colinbruner/argo-workflows-webhook/internal/config"
 	"github.com/colinbruner/argo-workflows-webhook/internal/router"
 	"k8s.io/klog/v2"
 )
@@ -21,6 +20,7 @@ func configureHandlers() {
 	http.HandleFunc("/", router.ServeIndex)
 	http.HandleFunc("/version", router.ServeVersion)
 	http.HandleFunc("/mutate", router.ServeMutate)
+	//http.HandleFunc("/validate", router.ServeValidate) // TODO
 }
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 	flag.IntVar(&port, "port", 8443, "HTTP Server Address") // TODO: envVar with default fallback
 	flag.Parse()
 
-	cfg := config.Config{
+	cfg := config{
 		CertFile: certFile,
 		KeyFile:  keyFile,
 	}
