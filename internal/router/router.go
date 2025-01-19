@@ -6,16 +6,16 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/colinbruner/argo-workflows-webhook/internal/logger"
 	"github.com/colinbruner/argo-workflows-webhook/internal/mutate"
 	"github.com/colinbruner/argo-workflows-webhook/internal/scheme"
 	v1 "k8s.io/api/admission/v1"
-	"k8s.io/klog/v2"
 )
 
-// admit is a generic function signature for an (validate or mutate) webhook
+// admit is a generic function signature for a webhook (validate or mutate)
 type admit func(v1.AdmissionReview) *v1.AdmissionResponse
 
-// admitHandler is a handler, for both validators and mutators, that CAN support multiple admission review versions
+// admitHandler is a handler, that CAN support multiple admission review versions
 type admitHandler struct {
 	v1 admit
 }
@@ -28,7 +28,7 @@ func newAdmitHandler(f admit) admitHandler {
 }
 
 func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
-	klog.Info("Reading body in request")
+	logger.Debug("Reading body in request")
 	var body []byte
 	if r.Body != nil {
 		if data, err := io.ReadAll(r.Body); err == nil {
@@ -36,27 +36,27 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 		}
 	}
 
-	klog.Info("Reading headers in request")
+	logger.Debug("Reading headers in request")
 	// verify the content type is accurate
 	contentType := r.Header.Get("Content-Type")
 	if contentType != "application/json" {
-		klog.Errorf("contentType=%s, expect application/json", contentType)
+		logger.Error(fmt.Sprintf("contentType=%s, expect application/json", contentType))
 		return
 	}
 
-	klog.V(2).Info(fmt.Sprintf("handling request body: %s", body))
+	logger.Debug(fmt.Sprintf("handling request body: %s", body))
 	deserializer := scheme.Codecs.UniversalDeserializer()
 	obj, gvk, err := deserializer.Decode(body, nil, nil)
 	if err != nil {
 		msg := fmt.Sprintf("Request could not be decoded: %v", err)
-		klog.Error(msg)
+		logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 	requestedAdmissionReview, ok := obj.(*v1.AdmissionReview)
 	if !ok {
 		msg := fmt.Sprintf("Expected v1.AdmissionReview but got: %T", obj)
-		klog.Info(msg)
+		logger.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
@@ -68,16 +68,16 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 
 	responseObj := responseAdmissionReview
 
-	klog.V(2).Info(fmt.Sprintf("sending response: %v", responseObj))
+	logger.Debug(fmt.Sprintf("sending response: %v", responseObj)) // TODO: Probably dont send over wire
 	respBytes, err := json.Marshal(responseObj)
 	if err != nil {
-		klog.Error(err)
+		logger.Error(fmt.Sprintf("Error marshalling JSON: %s", err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(respBytes); err != nil {
-		klog.Error(err)
+		logger.Error(fmt.Sprintf("Error writing HTTP response: %s", err))
 	}
 }
 
@@ -90,7 +90,7 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func ServeMutate(w http.ResponseWriter, r *http.Request) {
-	klog.Info("Request received for /mutate")
+	logger.Info("Request received for /mutate")
 	serve(w, r, newAdmitHandler(mutate.Mutate))
 }
 

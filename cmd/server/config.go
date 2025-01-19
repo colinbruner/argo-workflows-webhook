@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	"k8s.io/klog/v2"
+	"github.com/colinbruner/argo-workflows-webhook/internal/logger"
 )
 
 type config struct {
@@ -26,7 +26,7 @@ func (c *config) Validate() error {
 func (c config) SetupTLS() *tls.Config {
 	sCert, err := tls.LoadX509KeyPair(c.CertFile, c.KeyFile)
 	if err != nil {
-		klog.Fatal(err)
+		logger.Error("Error loading TLS certificate: %s", err)
 	}
 	return &tls.Config{
 		Certificates: []tls.Certificate{sCert},

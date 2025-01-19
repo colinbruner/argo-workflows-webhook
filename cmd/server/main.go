@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/colinbruner/argo-workflows-webhook/internal/logger"
 	"github.com/colinbruner/argo-workflows-webhook/internal/router"
-	"k8s.io/klog/v2"
 )
 
 var (
@@ -33,12 +33,13 @@ func main() {
 		CertFile: certFile,
 		KeyFile:  keyFile,
 	}
-	klog.Info("Loading configuration")
+	logger.Info("Loading configuration")
+
 	err := cfg.Validate()
 	if err != nil {
 		panic(err)
 	}
-	klog.Info("Configuration validated")
+	logger.Info("Configuration validated")
 
 	configureHandlers()
 
@@ -46,7 +47,7 @@ func main() {
 		Addr:      fmt.Sprintf(":%d", port),
 		TLSConfig: cfg.SetupTLS(),
 	}
-	klog.Info("Starting server on", server.Addr)
+	logger.Info(fmt.Sprintf("Starting server on %s", server.Addr))
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
 		panic(err)

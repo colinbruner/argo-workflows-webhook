@@ -2,11 +2,11 @@ package mutate
 
 import (
 	"encoding/json"
-	"net/http"
+	"fmt"
 
+	"github.com/colinbruner/argo-workflows-webhook/internal/logger"
 	v1 "k8s.io/api/admission/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog/v2"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
      ]`
 )
 
-// ServeMutate handles the /mutate/{resource} endpoint
+// ServeMutate handles the /mutate/ endpoint
 func Mutate(ar v1.AdmissionReview) *v1.AdmissionResponse {
 	customResource := struct {
 		metav1.ObjectMeta
@@ -26,30 +26,30 @@ func Mutate(ar v1.AdmissionReview) *v1.AdmissionResponse {
 	raw := ar.Request.Object.Raw
 	err := json.Unmarshal(raw, &customResource)
 	if err != nil {
-		klog.Error("Error unmarshalling request", err)
+		logger.Error("Error unmarshalling request", err)
 	}
 
 	switch ar.Request.Kind.Kind {
 	case "CronWorkflow":
-		klog.Info("Handling cronworkflows resource")
+		logger.Debug("Handling cronworkflows resource")
 		return mutateCronWorkflows()
 	case "Workflow":
 		//TODO
-		klog.Info("Handling workflows resource")
+		logger.Debug("Handling workflows resource")
 		return nil
 	case "WorkflowTemplate":
 		//TODO
-		klog.Info("Handling workflowtemplate resource")
+		logger.Debug("Handling workflowtemplate resource")
 		return nil
 	default:
-		klog.Error("Unsupported resource", http.StatusBadRequest)
+		logger.Error(fmt.Sprintf("Unsupported resource: %s", ar.Request.Kind.Kind))
 		return nil
 	}
 
 }
 
 func mutateCronWorkflows() *v1.AdmissionResponse {
-	klog.Info("Mutating cronworkflows")
+	logger.Debug("Mutating cronworkflows")
 
 	patchType := v1.PatchTypeJSONPatch
 
