@@ -20,7 +20,7 @@ func configureHandlers() {
 	http.HandleFunc("/", router.ServeIndex)
 	http.HandleFunc("/version", router.ServeVersion)
 	http.HandleFunc("/mutate", router.ServeMutate)
-	//http.HandleFunc("/validate", router.ServeValidate) // TODO
+	http.HandleFunc("/validate", router.ServeValidate)
 }
 
 func main() {

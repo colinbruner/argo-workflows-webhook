@@ -9,6 +9,7 @@ import (
 	"github.com/colinbruner/argo-workflows-webhook/internal/logger"
 	"github.com/colinbruner/argo-workflows-webhook/internal/mutate"
 	"github.com/colinbruner/argo-workflows-webhook/internal/scheme"
+	"github.com/colinbruner/argo-workflows-webhook/internal/validate"
 	v1 "k8s.io/api/admission/v1"
 )
 
@@ -95,9 +96,7 @@ func ServeMutate(w http.ResponseWriter, r *http.Request) {
 	serve(w, r, newAdmitHandler(mutate.Mutate))
 }
 
-/*
 func ServeValidate(w http.ResponseWriter, r *http.Request) {
-	klog.Info("Request received for /validate")
+	logger.Info("Request received for /validate")
 	serve(w, r, newAdmitHandler(validate.Validate))
 }
-*/
