@@ -40,7 +40,8 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 	// verify the content type is accurate
 	contentType := r.Header.Get("Content-Type")
 	if contentType != "application/json" {
-		logger.Error(fmt.Sprintf("contentType=%s, expect application/json", contentType))
+		msg := fmt.Sprintf("contentType=%s, expect application/json", contentType)
+		http.Error(w, msg, http.StatusUnsupportedMediaType)
 		return
 	}
 

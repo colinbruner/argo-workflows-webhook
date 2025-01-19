@@ -28,5 +28,5 @@ html: test
 
 .PHONY: test
 test:
-	go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic ./...
 	#go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic $$(go list ./... | grep -v /cmd/)
+	go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic $$(go list ./...)

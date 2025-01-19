@@ -18,6 +18,9 @@ func init() {
 	if os.Getenv("ENVIRONMENT") == "production" {
 		handler = slog.NewJSONHandler(os.Stdout, opts)
 		logLevel.Set(slog.LevelInfo)
+	} else if os.Getenv("ENVIRONMENT") == "testing" {
+		handler = slog.NewTextHandler(os.Stdout, opts)
+		logLevel.Set(slog.LevelWarn)
 	}
 
 	log = slog.New(handler)
