@@ -11,20 +11,20 @@ import (
 
 const (
 	// NOTE: Could dynamically look up aspects of this from ConfigMap, such as value?
-	customResourcePatch1 string = `[
+	patchStartingDeadlineSeconds string = `[
          { "op": "add", "path": "/spec/startingDeadlineSeconds", "value": 300 }
      ]`
 )
 
 // ServeMutate handles the /mutate/{resource} endpoint
 func Mutate(ar v1.AdmissionReview) *v1.AdmissionResponse {
-	cr := struct {
+	customResource := struct {
 		metav1.ObjectMeta
 		Data map[string]string
 	}{}
 
 	raw := ar.Request.Object.Raw
-	err := json.Unmarshal(raw, &cr)
+	err := json.Unmarshal(raw, &customResource)
 	if err != nil {
 		klog.Error("Error unmarshalling request", err)
 	}
@@ -42,7 +42,6 @@ func Mutate(ar v1.AdmissionReview) *v1.AdmissionResponse {
 		klog.Info("Handling workflowtemplate resource")
 		return nil
 	default:
-		// TODO: klog error?
 		klog.Error("Unsupported resource", http.StatusBadRequest)
 		return nil
 	}
@@ -57,6 +56,6 @@ func mutateCronWorkflows() *v1.AdmissionResponse {
 	return &v1.AdmissionResponse{
 		Allowed:   true,
 		PatchType: &patchType,
-		Patch:     []byte(customResourcePatch1),
+		Patch:     []byte(patchStartingDeadlineSeconds),
 	}
 }

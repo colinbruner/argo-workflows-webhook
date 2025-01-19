@@ -37,7 +37,7 @@ spec:
           secretName: argo-webhook-tls
       containers:
         - name: argo-webhook-tls
-          image: despitehowever/argo-workflows-webhook:latest
+          image: despitehowever/argo-workflows-webhook:latest-linux-amd64
           imagePullPolicy: Always
           args:
             - -tls-cert-file

@@ -64,12 +64,9 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitHandler) {
 	responseAdmissionReview := &v1.AdmissionReview{}
 	responseAdmissionReview.SetGroupVersionKind(*gvk)
 	responseAdmissionReview.Response = admit.v1(*requestedAdmissionReview)
-	fmt.Println("HERE2")
 	responseAdmissionReview.Response.UID = requestedAdmissionReview.Request.UID
 
-	fmt.Println("HERE")
 	responseObj := responseAdmissionReview
-	fmt.Println("HERE1")
 
 	klog.V(2).Info(fmt.Sprintf("sending response: %v", responseObj))
 	respBytes, err := json.Marshal(responseObj)

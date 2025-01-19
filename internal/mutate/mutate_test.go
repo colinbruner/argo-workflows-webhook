@@ -10,17 +10,18 @@ import (
 )
 
 func TestMutateCronWorkflow(t *testing.T) {
-	cr := struct {
+	customResource := struct {
 		metav1.ObjectMeta
 		Data map[string]string
 	}{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "test-cronworkflow",
+			UID:  "123",
 		},
 		Data: map[string]string{},
 	}
 
-	raw, err := json.Marshal(cr)
+	raw, err := json.Marshal(customResource)
 	if err != nil {
 		t.Fatalf("Error marshalling cronworkflow: %v", err)
 	}
@@ -41,7 +42,7 @@ func TestMutateCronWorkflow(t *testing.T) {
 		t.Errorf("Expected response to be allowed")
 	}
 
-	expectedPatch := customResourcePatch1
+	expectedPatch := patchStartingDeadlineSeconds
 	if string(response.Patch) != expectedPatch {
 		t.Errorf("Expected patch %s, but got %s", expectedPatch, string(response.Patch))
 	}
