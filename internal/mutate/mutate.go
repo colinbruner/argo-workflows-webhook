@@ -33,14 +33,17 @@ func Mutate(ar v1.AdmissionReview) *v1.AdmissionResponse {
 	case "CronWorkflow":
 		logger.Debug("Handling cronworkflow resource")
 		return mutateCronWorkflows()
-	case "Workflow":
-		//TODO
-		logger.Debug("Handling workflow resource")
-		return nil
-	case "WorkflowTemplate":
-		//TODO
-		logger.Debug("Handling workflowtemplate resource")
-		return nil
+	/*
+		//TODO: implement Workflow and WorkflowTemplate mutation
+		case "Workflow":
+			//TODO
+			logger.Debug("Handling workflow resource")
+			return nil
+		case "WorkflowTemplate":
+			//TODO
+			logger.Debug("Handling workflowtemplate resource")
+			return nil
+	*/
 	default:
 		logger.Error(fmt.Sprintf("Unsupported resource: %s", ar.Request.Kind.Kind))
 		return nil
