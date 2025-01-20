@@ -1,5 +1,5 @@
 apiVersion: admissionregistration.k8s.io/v1
-kind: MutatingWebhookConfiguration
+kind: ValidatingWebhookConfiguration
 metadata:
   name: argo-webhook
   labels:
@@ -10,17 +10,16 @@ webhooks:
     service:
       namespace: "argo"
       name: "argo-webhook"  
-      path: /mutate
+      path: "/validate"
     caBundle: |
       LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNyRENDQVpRQ0NRRGRRSC9oLzFEYXVUQU5CZ2txaGtpRzl3MEJBUXNGQURBWE1SVXdFd1lEVlFRRERBeGgKY21kdkxYZGxZbWh2YjJzd0lCY05NalV3TVRFMk1ETXhNREk1V2hnUE1qQTFNakEyTURNd016RXdNamxhTUJjeApGVEFUQmdOVkJBTU1ER0Z5WjI4dGQyVmlhRzl2YXpDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDCkFRb0NnZ0VCQUsxYVZUNUkvbm0vaGtpemF2MkxFUHpLYTNXbXZNY3hrYnA1SUZuWHNXdC9XeWd1SDFnakhKMlkKam9OeEVkQlhvQm1KeUFQYnZNNlJSbGZCR3owU0NwdjNLQ0krZDZnYlEyaGZndm9CT0lZakZGUEExZzIvR2R4QgpwVlQyendFanhLODR5QTRzeUs0d3pWaExuWkNlWWVWSG5ZbFNhNkZTVkYvZGRWSkVTc01SUWh4NTh2VjEvYzN5CkpRYVlUNG8rTlBoMVpSL3BZS3JHMmRBbW9FQ3QzVElqZitkMFQvRHpKaGhicFFpcERnc2ZQUVNpakFvOGp1R00KZ2NGMnplbXBMMmhSVjI3ZnVqWmV2dFIvU1RQM0t0L2MrNmQzanFQb0VnTjJsV2NpSkRIL3N1TXZIa3dITGxPNApET2VhQW1qK3BJMXJMTUZiZGt5eWl1ck1NQldLNlFVQ0F3RUFBVEFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCkVjYzJWalVnc2ZOUU9ia3haMm1tbTUyL1NUaElnNU1vTWtKWmdOdlY4WkVLK3BxTUN6UHFYVGNaMG5DRFNxRm8KZkVIR1c3VzJqZEgyWU9sN3FoV08xWERsaFJ1eE1lNXpXVnJvR1haZFJlMldSMHNxOGkzbGowOERjKzI5aytsSwpYa0ZIRHdYUklsNVNwUnNzQ1l5UlN2Vjh0NWpZb0JXY3FtR21UWHI0Ym1lYlltSExkOW5Pcm1vZVJHZlRLQVlsCjJZU29iSHgvbGFubGJaeGZERUlQa2c5S0RXOGx6WStKTkxJWUV5SjA3WnZsTzE2blh6QjhuYlh5UE4yTklURE4KS08zc3AyWXJCeW5XemE1REwyN3lwWDVWcURDOHMyWW9BYmlORlRtVFFaMVZZZ2h2MjZqRDZLK0dnVXVkQ3lzZgpOOHBFWjEwS1poeW9kaEk2aUZBQzFBPT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
   rules:
   - apiGroups:   ["argoproj.io"]
     apiVersions: ["v1alpha1"]
-    #operations:  ["CREATE", "UPDATE", "DELETE"]
     operations:  ["CREATE"]
     resources:   ["cronworkflows"]
     scope:       "Namespaced" # Cluster
   admissionReviewVersions: ["v1"]
-  failurePolicy: "Fail"
+  failurePolicy: "Ignore"
   sideEffects: None
   timeoutSeconds: 10

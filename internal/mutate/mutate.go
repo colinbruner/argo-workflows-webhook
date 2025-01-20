@@ -26,7 +26,7 @@ func Mutate(ar v1.AdmissionReview) *v1.AdmissionResponse {
 	raw := ar.Request.Object.Raw
 	err := json.Unmarshal(raw, &customResource)
 	if err != nil {
-		logger.Error("Error unmarshalling request", err)
+		logger.Error(fmt.Sprintf("Error unmarshalling request: %s", err))
 	}
 
 	switch ar.Request.Kind.Kind {

@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
   - resources/secret-tls.yaml
   - resources/mutatingwebhook.yaml
+  - resources/validatingwebhook.yaml
   - resources/rbac.yaml
   - resources/deploy.yaml
